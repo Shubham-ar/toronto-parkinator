@@ -22,6 +22,8 @@ export default function ResultsList({
       style={{
         height: "calc(78vh - 232px)",
         overflowY: "auto",
+        overscrollBehavior: "contain",
+        WebkitOverflowScrolling: "touch",
       }}
     >
       <div className="flex items-center justify-between px-5 pt-5 mb-3">

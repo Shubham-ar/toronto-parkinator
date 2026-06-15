@@ -52,24 +52,52 @@ function createParkingMarkerElement(
   onClick?: () => void
 ): HTMLDivElement {
   const hi = result.isBest;
+  const pinSize = hi || isSelected ? 40 : 28;
+  const stemHeight = hi || isSelected ? 10 : 7;
+  const totalHeight = pinSize + stemHeight - 1;
+
+  // Use a fixed-size wrapper so TomTom anchor: "center" lands on the
+  // geographic point at the bottom-center of the visible pin.
+  // We double totalHeight so the pin sits in the top half, and the
+  // center of the wrapper aligns with the tip of the stem.
+  const wrapperSize = Math.max(pinSize, totalHeight * 2);
+
   const root = document.createElement("div");
-  root.style.cursor = "pointer";
-  root.style.position = "relative";
-  root.style.zIndex = isSelected || hi ? "22" : "12";
+  root.style.cssText = `
+    width: ${wrapperSize}px;
+    height: ${wrapperSize}px;
+    cursor: pointer;
+    z-index: ${isSelected || hi ? 22 : 12};
+    pointer-events: none;
+  `;
+
+  // Inner container holds the visible pin, positioned so its bottom
+  // sits at the vertical center of root (= the anchor point).
+  const inner = document.createElement("div");
+  inner.style.cssText = `
+    position: absolute;
+    bottom: ${wrapperSize / 2}px;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: auto;
+  `;
 
   if (hi || isSelected) {
+    const pulseSize = isSelected ? 64 : 56;
+    const pulseOffset = (pulseSize - pinSize) / 2;
     const pulse = document.createElement("div");
     pulse.style.cssText = `
       position: absolute;
-      width: ${isSelected ? 64 : 56}px;
-      height: ${isSelected ? 64 : 56}px;
-      top: ${isSelected ? -16 : -12}px;
-      left: ${isSelected ? -16 : -12}px;
+      width: ${pulseSize}px;
+      height: ${pulseSize}px;
+      top: ${-pulseOffset}px;
+      left: ${-pulseOffset}px;
       border-radius: 9999px;
       background: rgba(45,185,106,${isSelected ? 0.28 : 0.18});
       animation: parkinator-pulse 2.2s ease-in-out infinite;
+      pointer-events: none;
     `;
-    root.appendChild(pulse);
+    inner.appendChild(pulse);
   }
 
   const pin = document.createElement("div");
@@ -82,8 +110,8 @@ function createParkingMarkerElement(
     user-select: none;
     font-family: 'Plus Jakarta Sans', sans-serif;
     letter-spacing: -0.01em;
-    width: ${hi || isSelected ? 40 : 28}px;
-    height: ${hi || isSelected ? 40 : 28}px;
+    width: ${pinSize}px;
+    height: ${pinSize}px;
     background: ${hi || isSelected ? "#2DB96A" : "#141C28"};
     color: ${hi || isSelected ? "#071410" : "#3E5878"};
     font-size: ${hi || isSelected ? 16 : 11}px;
@@ -95,20 +123,22 @@ function createParkingMarkerElement(
     };
   `;
   pin.textContent = "P";
-  root.appendChild(pin);
+  inner.appendChild(pin);
 
   const stem = document.createElement("div");
   stem.style.cssText = `
     margin: -1px auto 0;
     border-radius: 0 0 9999px 9999px;
     width: ${hi || isSelected ? 3 : 2}px;
-    height: ${hi || isSelected ? 10 : 7}px;
+    height: ${stemHeight}px;
     background: ${hi || isSelected ? "#2DB96A" : "#1C3050"};
   `;
-  root.appendChild(stem);
+  inner.appendChild(stem);
+
+  root.appendChild(inner);
 
   if (onClick) {
-    root.addEventListener("click", (event) => {
+    inner.addEventListener("click", (event) => {
       event.stopPropagation();
       onClick();
     });
@@ -417,7 +447,7 @@ export default function MapView({
         element: createParkingMarkerElement(result, isSelected, () => {
           onSelectResultRef.current?.(result);
         }),
-        anchor: "bottom",
+        anchor: "center",
       })
         .setLngLat([result.lot.lng, result.lot.lat])
         .addTo(map);

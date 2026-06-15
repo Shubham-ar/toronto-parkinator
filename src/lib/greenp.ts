@@ -7,10 +7,7 @@ const OPENDATA_URL =
 const GREENP_DIRECT_URL = "https://parking.greenp.com/api/carparks/";
 
 function getApiKey(): string {
-  return (
-    process.env.GREENP_API_KEY ??
-    "eedeab41c581e6883cd4eb349fdea8329dc450479b7f686dff292b5bf2de6f5b"
-  );
+  return process.env.GREENP_API_KEY ?? "";
 }
 
 function extractRawLots(json: unknown): unknown[] {
@@ -126,8 +123,12 @@ async function fetchWithFallback(): Promise<unknown> {
   }
 
   // Fallback: Green P direct API (may be blocked by Incapsula WAF)
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    throw new Error("GREENP_API_KEY not set and Open Data fetch failed");
+  }
   const url = new URL(GREENP_DIRECT_URL);
-  url.searchParams.set("api_key", getApiKey());
+  url.searchParams.set("api_key", apiKey);
   return await fetchJson(url.toString(), "Green P direct");
 }
 

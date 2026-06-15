@@ -71,9 +71,20 @@ export default function ResultCard({
             )}
           </div>
 
-          <h3 className="font-bold text-[15px] truncate" style={{ color: "#F0F6FC" }}>
+          <h3
+            className="font-bold text-[15px] truncate"
+            style={{ color: "#F0F6FC" }}
+          >
             {lot.name}
           </h3>
+          {lot.address && (
+            <p
+              className="text-[12px] mt-0.5 truncate"
+              style={{ color: "#8B949E" }}
+            >
+              {lot.address}
+            </p>
+          )}
 
           <div className="flex items-end gap-3 mt-2.5">
             <div className="flex items-baseline gap-1">
@@ -127,7 +138,7 @@ export default function ResultCard({
 
         <motion.button
           type="button"
-          className="flex items-center gap-1.5 px-4 py-[14px] rounded-2xl font-bold text-sm shrink-0"
+          className="flex items-center gap-1.5 px-3.5 py-3 rounded-xl font-bold text-[13px] shrink-0 mt-1"
           style={{
             background: "#2DB96A",
             color: "#071410",
@@ -137,7 +148,7 @@ export default function ResultCard({
           aria-label="Directions (coming soon)"
           onClick={() => {}}
         >
-          <Navigation2 size={16} strokeWidth={2.5} />
+          <Navigation2 size={14} strokeWidth={2.5} />
           Go
         </motion.button>
       </div>
@@ -199,12 +210,20 @@ export default function ResultCard({
             )}
           </div>
 
-          <h4 className="font-bold text-[14px] leading-snug" style={{ color: "#F0F6FC" }}>
+          <h4
+            className="font-bold text-[14px] leading-snug truncate"
+            style={{ color: "#F0F6FC" }}
+          >
             {lot.name}
           </h4>
-          <p className="text-[12px] mt-0.5" style={{ color: "#8B949E" }}>
-            {lot.address}
-          </p>
+          {lot.address && (
+            <p
+              className="text-[12px] mt-0.5 truncate"
+              style={{ color: "#8B949E" }}
+            >
+              {lot.address}
+            </p>
+          )}
 
           <div className="flex items-center gap-3 mt-3 flex-wrap">
             <div className="flex items-baseline gap-1">
@@ -267,17 +286,17 @@ export default function ResultCard({
 
         <motion.button
           type="button"
-          className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl font-bold text-[13px] shrink-0 mt-0.5"
+          className="flex items-center gap-1.5 px-3.5 py-3 rounded-xl font-bold text-[13px] shrink-0 mt-1"
           style={{
             background: isBestVariant ? "#2DB96A" : "rgba(255,255,255,0.06)",
             color: isBestVariant ? "#071410" : "#8B949E",
             border: isBestVariant ? "none" : "1px solid rgba(255,255,255,0.08)",
           }}
-          whileTap={{ scale: 0.94 }}
+          whileTap={{ scale: 0.95 }}
           aria-label="Directions (coming soon)"
           onClick={() => {}}
         >
-          <Navigation2 size={13} strokeWidth={2.5} />
+          <Navigation2 size={14} strokeWidth={2.5} />
           Go
         </motion.button>
       </div>

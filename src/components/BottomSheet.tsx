@@ -36,9 +36,10 @@ export default function BottomSheet({
           height: "78vh",
           background: "#161B22",
           boxShadow: "0 -8px 48px rgba(0,0,0,0.65)",
+          overscrollBehavior: "contain",
         }}
         initial={{ y: "100%" }}
-        animate={{ y: expanded ? "0%" : "calc(78vh - 230px)" }}
+        animate={{ y: expanded ? "0%" : "calc(78vh - 232px)" }}
         transition={{ type: "spring", stiffness: 420, damping: 46 }}
       >
         <div

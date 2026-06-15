@@ -42,7 +42,10 @@ export default function HomePage() {
 
   const runSearch = useCallback(
     async (location: Coordinates) => {
-      setAppState("locating");
+      setAppState((prev) => {
+        if (prev === "locating") return prev;
+        return "locating";
+      });
       setSheetExpanded(false);
       setUserLocation(location);
 
@@ -206,14 +209,19 @@ export default function HomePage() {
           )}
         </AnimatePresence>
 
-        {appState === "locating" && <LoadingState />}
+        <AnimatePresence>
+          {appState === "locating" && <LoadingState key="loading" />}
+        </AnimatePresence>
 
-        {appState === "no-results" && (
-          <NoResultsState
-            onOpenSettings={() => setSettingsOpen(true)}
-            onReset={handleReset}
-          />
-        )}
+        <AnimatePresence>
+          {appState === "no-results" && (
+            <NoResultsState
+              key="no-results"
+              onOpenSettings={() => setSettingsOpen(true)}
+              onReset={handleReset}
+            />
+          )}
+        </AnimatePresence>
 
         {appState === "results" && best && (
           <BottomSheet
@@ -222,7 +230,7 @@ export default function HomePage() {
             selectedResultId={selectedResult?.lot.id ?? best.lot.id}
             expanded={sheetExpanded}
             onToggleExpand={() => setSheetExpanded((v) => !v)}
-            onSearchAgain={handleReset}
+            onSearchAgain={handleSearchAgain}
             dataNote={dataNote}
           />
         )}
