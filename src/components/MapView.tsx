@@ -531,8 +531,8 @@ export default function MapView({
         dragPan: true,
         scrollZoom: true,
         stylesVisibility: {
-          trafficFlow: false,
-          trafficIncidents: false,
+          trafficFlow: true,
+          trafficIncidents: true,
         },
       });
 
@@ -612,6 +612,26 @@ export default function MapView({
         style={{ width: "100%", height: "100%" }}
         aria-label="Interactive parking map"
       />
+      <div
+        className="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1.5 rounded-full"
+        style={{
+          zIndex: 5,
+          background: "rgba(10,16,28,0.75)",
+          backdropFilter: "blur(8px)",
+          border: "1px solid rgba(255,255,255,0.06)",
+        }}
+      >
+        <div
+          className="w-2 h-2 rounded-full"
+          style={{ background: "#2DB96A" }}
+        />
+        <span
+          className="text-[10px] font-medium"
+          style={{ color: "#8B949E", fontFamily: "DM Mono, monospace" }}
+        >
+          Live traffic
+        </span>
+      </div>
     </>
   );
 }

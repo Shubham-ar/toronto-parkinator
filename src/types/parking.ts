@@ -25,8 +25,8 @@ export interface GreenPLot {
 export type SortPreference = "cheapest" | "shortest_walk" | "balanced";
 
 export interface SearchSettings {
-  maxDrivingRadiusKm: number;
-  maxWalkingRadiusKm: number;
+  maxDriveMinutes: number;
+  maxWalkMinutes: number;
   parkingDurationMinutes: number;
   sortPreference: SortPreference;
   preferGarages: boolean;
@@ -35,13 +35,11 @@ export interface SearchSettings {
 
 export interface SearchResult {
   lot: GreenPLot;
-  distanceFromCurrentLocationKm: number;
-  distanceFromDestinationKm: number;
+  distanceKm: number;
   estimatedPrice: number | null;
-  /** Placeholder for Google Routes API drive ETA */
-  estimatedDriveMinutes?: number;
-  /** Placeholder for walking route ETA */
-  estimatedWalkMinutes?: number;
+  estimatedDriveMinutes: number;
+  estimatedWalkMinutes: number;
+  isTrafficAware: boolean;
   isBest: boolean;
 }
 
@@ -57,6 +55,8 @@ export interface SearchResponse {
   meta: {
     dataSource: "greenp" | "fallback";
     total: number;
+    routingProvider: "tomtom_matrix_v2" | null;
+    liveTrafficEnabled: boolean;
     distanceNote: string;
     cached?: boolean;
     note?: string;
@@ -81,8 +81,8 @@ export type AppState =
   | "location-failed";
 
 export const DEFAULT_SEARCH_SETTINGS: SearchSettings = {
-  maxDrivingRadiusKm: 5,
-  maxWalkingRadiusKm: 1.5,
+  maxDriveMinutes: 15,
+  maxWalkMinutes: 10,
   parkingDurationMinutes: 120,
   sortPreference: "cheapest",
   preferGarages: false,

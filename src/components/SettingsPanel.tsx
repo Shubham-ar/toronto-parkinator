@@ -33,6 +33,9 @@ export default function SettingsPanel({
     onChange({ ...settings, ...partial });
   };
 
+  const monoLabel = { color: "#8B949E", fontFamily: "DM Mono, monospace" } as const;
+  const monoValue = { color: "#2DB96A", fontFamily: "DM Mono, monospace" } as const;
+
   return (
     <AnimatePresence>
       {open && (
@@ -86,10 +89,11 @@ export default function SettingsPanel({
                 paddingBottom: "max(env(safe-area-inset-bottom), 40px)",
               }}
             >
+              {/* Sort */}
               <div>
                 <label
                   className="block text-[11px] font-bold uppercase tracking-wider mb-3"
-                  style={{ color: "#8B949E", fontFamily: "DM Mono, monospace" }}
+                  style={monoLabel}
                 >
                   Sort results by
                 </label>
@@ -116,68 +120,73 @@ export default function SettingsPanel({
                 </div>
               </div>
 
+              {/* Max drive time */}
               <div>
                 <div className="flex justify-between mb-3">
                   <label
                     className="text-[11px] font-bold uppercase tracking-wider"
-                    style={{ color: "#8B949E", fontFamily: "DM Mono, monospace" }}
+                    style={monoLabel}
                   >
-                    Max Driving Radius
+                    Max Drive Time
                   </label>
-                  <span
-                    className="text-sm font-medium"
-                    style={{ color: "#2DB96A", fontFamily: "DM Mono, monospace" }}
-                  >
-                    {settings.maxDrivingRadiusKm.toFixed(1)} km
+                  <span className="text-sm font-medium" style={monoValue}>
+                    {settings.maxDriveMinutes} min
                   </span>
                 </div>
                 <input
                   type="range"
-                  min={0.5}
-                  max={15}
-                  step={0.5}
-                  value={settings.maxDrivingRadiusKm}
+                  min={2}
+                  max={30}
+                  step={1}
+                  value={settings.maxDriveMinutes}
                   onChange={(e) =>
-                    update({ maxDrivingRadiusKm: Number(e.target.value) })
+                    update({ maxDriveMinutes: Number(e.target.value) })
                   }
                   className="w-full h-1.5 rounded-full appearance-none cursor-pointer"
                   style={{ accentColor: "#2DB96A" }}
                 />
+                <div className="flex justify-between mt-2">
+                  <span style={{ ...monoLabel, fontSize: 10, color: "rgba(255,255,255,0.15)" }}>2 min</span>
+                  <span style={{ ...monoLabel, fontSize: 10, color: "rgba(255,255,255,0.15)" }}>30 min</span>
+                </div>
               </div>
 
+              {/* Max walk time */}
               <div>
                 <div className="flex justify-between mb-3">
                   <label
                     className="text-[11px] font-bold uppercase tracking-wider"
-                    style={{ color: "#8B949E", fontFamily: "DM Mono, monospace" }}
+                    style={monoLabel}
                   >
-                    Max Walking Radius
+                    Max Walk Time
                   </label>
-                  <span
-                    className="text-sm font-medium"
-                    style={{ color: "#2DB96A", fontFamily: "DM Mono, monospace" }}
-                  >
-                    {settings.maxWalkingRadiusKm.toFixed(1)} km
+                  <span className="text-sm font-medium" style={monoValue}>
+                    {settings.maxWalkMinutes} min
                   </span>
                 </div>
                 <input
                   type="range"
-                  min={0.2}
-                  max={5}
-                  step={0.1}
-                  value={settings.maxWalkingRadiusKm}
+                  min={2}
+                  max={30}
+                  step={1}
+                  value={settings.maxWalkMinutes}
                   onChange={(e) =>
-                    update({ maxWalkingRadiusKm: Number(e.target.value) })
+                    update({ maxWalkMinutes: Number(e.target.value) })
                   }
                   className="w-full h-1.5 rounded-full appearance-none cursor-pointer"
                   style={{ accentColor: "#2DB96A" }}
                 />
+                <div className="flex justify-between mt-2">
+                  <span style={{ ...monoLabel, fontSize: 10, color: "rgba(255,255,255,0.15)" }}>2 min</span>
+                  <span style={{ ...monoLabel, fontSize: 10, color: "rgba(255,255,255,0.15)" }}>30 min</span>
+                </div>
               </div>
 
+              {/* Duration */}
               <div>
                 <label
                   className="block text-[11px] font-bold uppercase tracking-wider mb-3"
-                  style={{ color: "#8B949E", fontFamily: "DM Mono, monospace" }}
+                  style={monoLabel}
                 >
                   Parking Duration
                 </label>
@@ -206,10 +215,11 @@ export default function SettingsPanel({
                 </div>
               </div>
 
+              {/* Lot preferences */}
               <div className="space-y-3">
                 <label
                   className="block text-[11px] font-bold uppercase tracking-wider"
-                  style={{ color: "#8B949E", fontFamily: "DM Mono, monospace" }}
+                  style={monoLabel}
                 >
                   Lot preferences
                 </label>

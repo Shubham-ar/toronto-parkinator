@@ -145,10 +145,8 @@ export default function HomePage() {
     requestGeolocation();
   }, [requestGeolocation]);
 
-  const maxRadiusKm = Math.max(
-    settings.maxDrivingRadiusKm,
-    settings.maxWalkingRadiusKm
-  );
+  // Rough visual radius for map placeholder fallback (convert max drive minutes to km)
+  const maxRadiusKm = (settings.maxDriveMinutes / 60) * 30;
 
   return (
     <div

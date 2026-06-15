@@ -13,22 +13,49 @@ interface ResultCardProps {
   isSelected?: boolean;
 }
 
+function TimeBadge({ isTrafficAware }: { isTrafficAware: boolean }) {
+  if (isTrafficAware) {
+    return (
+      <span
+        className="text-[9px] font-bold px-1.5 py-[1px] rounded-full"
+        style={{
+          background: "rgba(59,130,246,0.12)",
+          color: "#60A5FA",
+          fontFamily: "DM Mono, monospace",
+        }}
+      >
+        Traffic-aware
+      </span>
+    );
+  }
+  return (
+    <span
+      className="text-[9px] px-1.5 py-[1px] rounded-full"
+      style={{
+        background: "rgba(255,255,255,0.04)",
+        color: "rgba(139,148,158,0.5)",
+        fontFamily: "DM Mono, monospace",
+      }}
+    >
+      Rough est.
+    </span>
+  );
+}
+
 export default function ResultCard({
   result,
   variant = "list",
   animationDelay = 0,
   isSelected = false,
 }: ResultCardProps) {
-  const { lot, isBest, estimatedPrice, estimatedDriveMinutes, estimatedWalkMinutes } =
+  const { lot, isBest, estimatedPrice, estimatedDriveMinutes, estimatedWalkMinutes, isTrafficAware } =
     result;
   const isBestVariant = variant === "best" || isBest;
 
   const priceDisplay = formatEstimatedPrice(estimatedPrice);
   const halfHourRate = formatRateHalfHour(lot.rateHalfHour);
-  const driveLabel = estimatedDriveMinutes
-    ? `${estimatedDriveMinutes} min`
-    : "—";
-  const walkLabel = estimatedWalkMinutes ? `${estimatedWalkMinutes} min` : "—";
+  const driveLabel = `~${estimatedDriveMinutes} min`;
+  const walkLabel = `~${estimatedWalkMinutes} min`;
 
   if (variant === "best") {
     return (
@@ -57,6 +84,7 @@ export default function ResultCard({
             >
               ★ Best Nearby
             </span>
+            <TimeBadge isTrafficAware={isTrafficAware} />
             {lot.isUnderConstruction && (
               <span
                 className="text-[10px] px-2 py-[2px] rounded-full"
@@ -196,6 +224,7 @@ export default function ResultCard({
             >
               {carparkTypeLabel(lot.carparkType)}
             </span>
+            <TimeBadge isTrafficAware={isTrafficAware} />
             {lot.isUnderConstruction && (
               <span
                 className="text-[10px] px-2 py-[2px] rounded-full"

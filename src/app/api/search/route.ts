@@ -1,6 +1,14 @@
 import { NextResponse } from "next/server";
 import { fetchGreenPLots } from "@/lib/greenp";
-import { searchParking } from "@/lib/parkingSearch";
+import {
+  searchParking,
+  getMatrixCandidates,
+  type MatrixDriveTimeMap,
+} from "@/lib/parkingSearch";
+import {
+  fetchMatrixDriveTimes,
+  USE_TOMTOM_MATRIX,
+} from "@/lib/tomtomMatrix";
 import type {
   SearchRequest,
   SearchSettings,
@@ -33,10 +41,10 @@ function isValidSettings(value: unknown): value is SearchSettings {
   const s = value as Record<string, unknown>;
 
   return (
-    typeof s.maxDrivingRadiusKm === "number" &&
-    s.maxDrivingRadiusKm > 0 &&
-    typeof s.maxWalkingRadiusKm === "number" &&
-    s.maxWalkingRadiusKm > 0 &&
+    typeof s.maxDriveMinutes === "number" &&
+    s.maxDriveMinutes > 0 &&
+    typeof s.maxWalkMinutes === "number" &&
+    s.maxWalkMinutes > 0 &&
     typeof s.parkingDurationMinutes === "number" &&
     s.parkingDurationMinutes > 0 &&
     typeof s.sortPreference === "string" &&
@@ -77,7 +85,36 @@ export async function POST(request: Request) {
 
   try {
     const { lots, meta } = await fetchGreenPLots();
-    const { results, best } = searchParking(lots, currentLocation, settings);
+
+    let matrixDriveTimes: MatrixDriveTimeMap | null = null;
+
+    if (USE_TOMTOM_MATRIX) {
+      const candidates = getMatrixCandidates(
+        lots,
+        currentLocation,
+        settings.maxDriveMinutes
+      );
+
+      if (candidates.length > 0) {
+        const matrixResults = await fetchMatrixDriveTimes(
+          currentLocation,
+          candidates
+        );
+        if (matrixResults) {
+          matrixDriveTimes = {};
+          for (const r of matrixResults) {
+            matrixDriveTimes[r.lotId] = r.driveMinutes;
+          }
+        }
+      }
+    }
+
+    const { results, best, isTrafficAware } = searchParking(
+      lots,
+      currentLocation,
+      settings,
+      matrixDriveTimes
+    );
 
     return NextResponse.json({
       results,
@@ -85,10 +122,13 @@ export async function POST(request: Request) {
       meta: {
         dataSource: meta.source,
         total: results.length,
+        routingProvider: isTrafficAware ? "tomtom_matrix_v2" : null,
+        liveTrafficEnabled: isTrafficAware,
+        distanceNote: isTrafficAware
+          ? "Drive times are traffic-aware via TomTom. Walk times are rough estimates."
+          : "Drive and walk times are rough estimates based on straight-line distance.",
         cached: meta.cached,
         note: meta.note,
-        distanceNote:
-          "Distances are straight-line estimates. Drive and walk times are approximate.",
       },
     });
   } catch (error) {
