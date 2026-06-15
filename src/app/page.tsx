@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import BottomSheet from "@/components/BottomSheet";
 import FloatingHeader from "@/components/FloatingHeader";
@@ -138,6 +138,13 @@ export default function HomePage() {
     setLocationError(undefined);
   };
 
+  const hasAutoLocated = useRef(false);
+  useEffect(() => {
+    if (hasAutoLocated.current) return;
+    hasAutoLocated.current = true;
+    requestGeolocation();
+  }, [requestGeolocation]);
+
   const maxRadiusKm = Math.max(
     settings.maxDrivingRadiusKm,
     settings.maxWalkingRadiusKm
@@ -178,7 +185,11 @@ export default function HomePage() {
           maxRadiusKm={maxRadiusKm}
         />
 
-        <FloatingHeader onOpenSettings={() => setSettingsOpen(true)} />
+        <FloatingHeader
+          onOpenSettings={() => setSettingsOpen(true)}
+          onReset={handleReset}
+          showReset={appState !== "idle" && appState !== "locating"}
+        />
 
         <AnimatePresence>
           {appState === "idle" && (

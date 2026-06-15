@@ -1,12 +1,24 @@
 "use client";
 
-import { Settings2 } from "lucide-react";
+import { RotateCcw, Settings2 } from "lucide-react";
 
 interface FloatingHeaderProps {
   onOpenSettings: () => void;
+  onReset?: () => void;
+  showReset?: boolean;
 }
 
-export default function FloatingHeader({ onOpenSettings }: FloatingHeaderProps) {
+export default function FloatingHeader({
+  onOpenSettings,
+  onReset,
+  showReset,
+}: FloatingHeaderProps) {
+  const buttonStyle = {
+    background: "rgba(10,16,28,0.82)",
+    backdropFilter: "blur(14px)",
+    border: "1px solid rgba(255,255,255,0.07)",
+  };
+
   return (
     <div
       className="absolute top-0 left-0 right-0 flex items-center justify-between px-4"
@@ -14,11 +26,7 @@ export default function FloatingHeader({ onOpenSettings }: FloatingHeaderProps) 
     >
       <div
         className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl"
-        style={{
-          background: "rgba(10,16,28,0.82)",
-          backdropFilter: "blur(14px)",
-          border: "1px solid rgba(255,255,255,0.07)",
-        }}
+        style={buttonStyle}
       >
         <div
           className="flex items-center justify-center w-7 h-7 rounded-lg font-extrabold text-sm"
@@ -38,19 +46,28 @@ export default function FloatingHeader({ onOpenSettings }: FloatingHeaderProps) 
         </span>
       </div>
 
-      <button
-        type="button"
-        onClick={onOpenSettings}
-        className="flex items-center justify-center w-11 h-11 rounded-2xl active:scale-95 transition-transform"
-        style={{
-          background: "rgba(10,16,28,0.82)",
-          backdropFilter: "blur(14px)",
-          border: "1px solid rgba(255,255,255,0.07)",
-        }}
-        aria-label="Open settings"
-      >
-        <Settings2 size={19} color="#8B949E" />
-      </button>
+      <div className="flex items-center gap-2">
+        {showReset && onReset && (
+          <button
+            type="button"
+            onClick={onReset}
+            className="flex items-center justify-center w-11 h-11 rounded-2xl active:scale-95 transition-transform"
+            style={buttonStyle}
+            aria-label="Reset search"
+          >
+            <RotateCcw size={18} color="#8B949E" />
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={onOpenSettings}
+          className="flex items-center justify-center w-11 h-11 rounded-2xl active:scale-95 transition-transform"
+          style={buttonStyle}
+          aria-label="Open settings"
+        >
+          <Settings2 size={19} color="#8B949E" />
+        </button>
+      </div>
     </div>
   );
 }
