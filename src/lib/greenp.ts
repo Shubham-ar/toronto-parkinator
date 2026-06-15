@@ -1,13 +1,16 @@
 import { fallbackGreenPLots } from "@/data/fallbackGreenPLots";
 import type { CarparkType, GreenPLot } from "@/types/parking";
 
-const DEFAULT_API_KEY =
-  "eedeab41c581e6883cd4eb349fdea8329dc450479b7f686dff292b5bf2de6f5b";
+const OPENDATA_URL =
+  "https://ckan0.cf.opendata.inter.prod-toronto.ca/dataset/b66466c3-69c8-4825-9c8b-04b270069193/resource/8549d588-30b0-482e-b872-b21beefdda22/download/green-p-parking-2019.json";
 
-const GREENP_BASE_URL = "https://parking.greenp.com/api/carparks/";
+const GREENP_DIRECT_URL = "https://parking.greenp.com/api/carparks/";
 
 function getApiKey(): string {
-  return process.env.GREENP_API_KEY ?? DEFAULT_API_KEY;
+  return (
+    process.env.GREENP_API_KEY ??
+    "eedeab41c581e6883cd4eb349fdea8329dc450479b7f686dff292b5bf2de6f5b"
+  );
 }
 
 function extractRawLots(json: unknown): unknown[] {
@@ -88,30 +91,53 @@ export interface GreenPFetchMeta {
   note?: string;
 }
 
+async function fetchJson(url: string, label: string): Promise<unknown> {
+  console.info(`[greenp] Trying ${label}: ${url.slice(0, 80)}...`);
+  const response = await fetch(url, {
+    next: { revalidate: 3600 },
+    headers: {
+      Accept: "application/json",
+      "User-Agent":
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`${label} returned ${response.status}`);
+  }
+
+  const contentType = response.headers.get("content-type") ?? "";
+  if (!contentType.includes("json")) {
+    throw new Error(`${label} returned non-JSON (${contentType})`);
+  }
+
+  const json: unknown = await response.json();
+  console.info(`[greenp] ${label} succeeded`);
+  return json;
+}
+
+async function fetchWithFallback(): Promise<unknown> {
+  // Primary: Toronto Open Data Portal (no WAF)
+  try {
+    return await fetchJson(OPENDATA_URL, "Toronto Open Data");
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
+    console.warn(`[greenp] Open Data failed: ${msg}, trying Green P direct...`);
+  }
+
+  // Fallback: Green P direct API (may be blocked by Incapsula WAF)
+  const url = new URL(GREENP_DIRECT_URL);
+  url.searchParams.set("api_key", getApiKey());
+  return await fetchJson(url.toString(), "Green P direct");
+}
+
 export async function fetchGreenPLots(): Promise<{
   lots: GreenPLot[];
   meta: GreenPFetchMeta;
 }> {
   // TODO: robust caching (Redis/KV)
   try {
-    const url = new URL(GREENP_BASE_URL);
-    url.searchParams.set("api_key", getApiKey());
-    url.searchParams.set("filter", "1,2");
-
-    const response = await fetch(url.toString(), {
-      next: { revalidate: 3600 },
-      headers: {
-        Accept: "application/json",
-        "User-Agent":
-          "TorontoParkinator/1.0 (+https://github.com/toronto-parkinator)",
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Green P API returned ${response.status}`);
-    }
-
-    const json: unknown = await response.json();
+    const json = await fetchWithFallback();
     const rawLots = extractRawLots(json);
     const lots = rawLots
       .filter(
@@ -130,7 +156,8 @@ export async function fetchGreenPLots(): Promise<{
       meta: { source: "greenp", cached: true },
     };
   } catch (error) {
-    console.error("[greenp] fetch failed:", error);
+    const msg = error instanceof Error ? error.message : String(error);
+    console.warn(`[greenp] Using fallback data: ${msg}`);
     return {
       lots: fallbackGreenPLots,
       meta: {
