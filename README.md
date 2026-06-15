@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Toronto Parkinator
+
+Mobile-first Next.js app to find nearby Green P parking in downtown Toronto.
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `npm run dev` — development server
+- `npm run build` — production build
+- `npm run start` — run production server locally
 
-## Learn More
+## Environment
 
-To learn more about Next.js, take a look at the following resources:
+Copy `.env.local.example` to `.env.local` and fill in keys as needed:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+cp .env.local.example .env.local
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `NEXT_PUBLIC_TOMTOM_API_KEY` | Recommended | TomTom Maps Web SDK key for the interactive map ([TomTom Developer Portal](https://developer.tomtom.com/)). Without it, the app shows a CSS placeholder map. |
+| `GREENP_API_KEY` | Optional | Green P API key (defaults to bundled dev key if unset) |
 
-## Deploy on Vercel
+Example `.env.local`:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+NEXT_PUBLIC_TOMTOM_API_KEY=your_tomtom_key_here
+GREENP_API_KEY=your_key_here
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Deploy (Vercel)
+
+1. Push to GitHub
+2. Import project in Vercel (root: `toronto-parkinator`)
+3. Set `NEXT_PUBLIC_TOMTOM_API_KEY` and `GREENP_API_KEY` if needed
+4. Deploy
+
+## Notes
+
+- Green P may return an Incapsula WAF challenge from some networks (HTML instead of JSON). The app falls back to sample downtown lots for local development; server-side fetch from Vercel often works in production.
