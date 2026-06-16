@@ -6,6 +6,28 @@ import { formatEstimatedPrice, formatRateHalfHour } from "@/lib/pricing";
 import type { SearchResult } from "@/types/parking";
 import { WalkIcon, carparkTypeLabel } from "./icons";
 
+function openDirections(lat: number, lng: number) {
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if (isMobile) {
+    // Opens Google Maps app with turn-by-turn navigation
+    window.location.href = `google.navigation:q=${lat},${lng}&mode=d`;
+    // Fallback if Google Maps app isn't installed (after short delay)
+    setTimeout(() => {
+      window.open(
+        `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`,
+        "_blank",
+        "noopener"
+      );
+    }, 500);
+  } else {
+    window.open(
+      `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`,
+      "_blank",
+      "noopener"
+    );
+  }
+}
+
 interface ResultCardProps {
   result: SearchResult;
   variant?: "best" | "list";
@@ -173,8 +195,8 @@ export default function ResultCard({
             boxShadow: "0 4px 18px rgba(45,185,106,0.38)",
           }}
           whileTap={{ scale: 0.95 }}
-          aria-label="Directions (coming soon)"
-          onClick={() => {}}
+          aria-label={`Navigate to ${lot.name}`}
+          onClick={() => openDirections(lot.lat, lot.lng)}
         >
           <Navigation2 size={14} strokeWidth={2.5} />
           Go
@@ -322,8 +344,8 @@ export default function ResultCard({
             border: isBestVariant ? "none" : "1px solid rgba(255,255,255,0.08)",
           }}
           whileTap={{ scale: 0.95 }}
-          aria-label="Directions (coming soon)"
-          onClick={() => {}}
+          aria-label={`Navigate to ${lot.name}`}
+          onClick={() => openDirections(lot.lat, lot.lng)}
         >
           <Navigation2 size={14} strokeWidth={2.5} />
           Go
